@@ -2,6 +2,7 @@
   "expo": {
     "name": "AwesomeProject",
     "slug": "AwesomeProject",
+    "plugins": ["@react-native-google-signin/google-signin"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,11 +10,20 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "plugins": [
+        "@react-native-firebase/app",
+        "@react-native-firebase/auth",
+        "@react-native-firebase/crashlytics",
+        [
+          "expo-update",
+          {
+            "username": "Gamerix"
+          }
+        ]
+      ]
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -21,10 +31,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.yourcompany.awesomeproject"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "47a2178d-4eda-4d36-a66d-2074807ae1f7"
+      }
     }
   }
 }

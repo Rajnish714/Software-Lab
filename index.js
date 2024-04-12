@@ -1,0 +1,147 @@
+// const {admin, db} = require("./src/firebaseinit");
+// const express = require("express");
+// const cors = require("cors");
+// const {v4} = require("uuid");
+// const app = express();
+// var bodyParser = require("body-parser");
+// app.use(cors());
+// app.use(bodyParser.urlencoded({extended: false}));
+
+// app.use(bodyParser.json());
+// const port = process.env.PORT || 3000;
+
+// app.post("/user/register", (req, res) => {
+//   console.log("Require", req.body);
+//   // const newUserDocRef = db.collection("users").doc(v4());
+//   // const newUser = req.body;
+
+//   // newUserDocRef.set(newUser);
+//   res.send("hello");
+// });
+
+// app.listen(port, () => {
+//   console.log(`server running on ${port} `);
+// });
+// server.js
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
+const {db} = require("./src/firebaseinit");
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+// Register route
+app.post("/user/register", async (req, res) => {
+  try {
+    // Check if user with provided email already exists
+    const {
+      name,
+      email,
+      Phone,
+      password,
+      Role,
+      business_name,
+      informal_name,
+      address,
+      city,
+      state, // Default state
+      zip_code,
+      registration_proof,
+      business_hours,
+      type,
+      social_id,
+    } = req.body;
+    const userSnapshot = await db
+      .collection("users")
+      .where("email", "==", email)
+      .get();
+
+    if (!userSnapshot.empty) {
+      res.status(400).json({
+        register: true,
+        islogin: false,
+        message: "User already exists",
+      });
+      return;
+    }
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("ye hai", hashedPassword);
+
+    // Create new user document in Firestore
+    const userData = {
+      name,
+      email,
+      Phone,
+      password: hashedPassword,
+      Role,
+      business_name,
+      informal_name,
+      address,
+      city,
+      state,
+      zip_code,
+      registration_proof,
+      business_hours,
+
+      type,
+      social_id,
+    };
+    await db.collection("users").add(
+      // Add other user data as needed
+      userData
+    );
+    res.status(201).json({
+      username: name,
+
+      islogin: true,
+      message: "User created successfully",
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
+    res.status(500).json({message: "Internal server error"});
+  }
+});
+
+// Login route
+app.post("/user/login", async (req, res) => {
+  try {
+    const {email, password} = req.body;
+    console.log(email, password);
+
+    // Retrieve user document from Firestore based on email
+    const userSnapshot = await db
+      .collection("users")
+      .where("email", "==", email)
+      .get();
+    if (userSnapshot.empty) {
+      res.status(401).json({message: "Invalid credentials"});
+      return;
+    }
+    const userData = userSnapshot.docs[0].data();
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, userData.password);
+    if (!isPasswordValid) {
+      res.status(401).json({message: "Invalid credentials"});
+      return;
+    }
+    res.status(200).json({
+      message: "Login successful",
+
+      islogin: true,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({message: "Internal server error"});
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});

@@ -1,8 +1,8 @@
+import React from "react";
 import { Button, Modal, Text } from "react-native";
-import Form from "../components/form";
-import { useState } from "react";
+import Signupform from "../components/Signup/Signupform";
+
 export default function Signup({ signupModelVisible, setSignupModelVisible }) {
-  const [signupFilled, setSignupFilled] = useState(false);
   return (
     <Modal
       visible={signupModelVisible}
@@ -12,7 +12,7 @@ export default function Signup({ signupModelVisible, setSignupModelVisible }) {
       animationType="slide"
     >
       <Text>Signup</Text>
-      <Form />
+      <Signupform />
 
       <Button
         title="Close"
